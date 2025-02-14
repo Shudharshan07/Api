@@ -1,4 +1,30 @@
 FROM openjdk:23-jdk-slim as build
+
+
+WORKDIR /app
+
+
+COPY gradle /app/gradle
+COPY gradlew /app/
+COPY build.gradle /app/
+
+
+COPY src /app/src
+
+
+RUN ./gradlew build --no-daemon
+
+
+FROM openjdk:23-jdk-slim
+
+
+WORKDIR /app
+
+
+COPY --from=build /app/build/libs/ToneAnalyserApiApplication.jar /app/ToneAnalyserApiApplication.jar
+
+
 EXPOSE 8080
-ADD src\main\java\com\example\tone_analyser_api\ToneAnalyserApiApplication.java docker.jar
-ENTRYPOINT ["java","-jar","docker.jar"]
+
+
+ENTRYPOINT ["java", "-jar", "/app/ToneAnalyserApiApplication.jar"]
